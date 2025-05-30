@@ -21,6 +21,7 @@ transform = transforms.Compose([
     transforms.ToTensor(),
 ])
 
+
 def predict_image(image_bytes: bytes, method: str = "gradcam"):
     pil_image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
     input_tensor = transform(pil_image).unsqueeze(0).to(device)

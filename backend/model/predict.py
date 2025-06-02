@@ -32,7 +32,9 @@ def predict_image(image_bytes: bytes, method: str = "gradcam"):
         cam_extractor = GradCAM(model, target_layer="conv3")
 
     output = model(input_tensor)
-    pred_class = torch.argmax(output, dim=1).item()
+    probabilities = torch.softmax(output, dim=1)
+    pred_class = torch.argmax(probabilities, dim=1).item()
+    confidence = probabilities[0, pred_class].item()
 
     activation_map = cam_extractor(pred_class, output)[0].cpu()
 
@@ -48,5 +50,6 @@ def predict_image(image_bytes: bytes, method: str = "gradcam"):
 
     return {
         "prediction": ["Negative", "Positive"][pred_class],
+        "confidence": confidence,
         "cam_image": f"data:image/png;base64,{cam_b64}"
     }

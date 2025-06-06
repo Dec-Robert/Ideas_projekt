@@ -12,6 +12,8 @@ predict.py - Ładuje model cnn.pth i na podstawie podanego zdjęcia określa kla
 
 cnn.pth - Zapisane wagi modelu, wymaga klasy CNNModel z model_def.py do załadowania
 
+main.py - serwis - odbiera dane od akwizycji obrazów i wysyła post do bazy danych
+
 
 ## Biblioteki
 - torch
@@ -22,3 +24,4 @@ cnn.pth - Zapisane wagi modelu, wymaga klasy CNNModel z model_def.py do załadow
 - numpy
 - opencv-python
 - scikit-learn
+- fastapi

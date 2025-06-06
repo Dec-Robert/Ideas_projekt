@@ -38,7 +38,7 @@ async def analyze_sample(request: AnalyzeRequest):
             raise HTTPException(status_code=502, detail="Błąd wysyłki do bazy danych")
 
         # Odpowiedź do Akwizycji Obrazu - opcjonalnie
-        return JSONResponse(content={"status": "success", "forwarded": True, "data": data_to_forward})
+        # return JSONResponse(content={"status": "success", "forwarded": True, "data": data_to_forward})
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

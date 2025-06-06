@@ -2,13 +2,14 @@ from fastapi import FastAPI, HTTPException, UploadFile, File, Form
 from fastapi.responses import JSONResponse
 from predict import predict_image
 import requests
+import uvicorn
 
 app = FastAPI()
 
 BAZA_URL = "http://baza:8000/samples/"
 
 
-@app.post("/process/")
+@app.post("/process")
 async def analyze_sample(
     image: UploadFile = File(...),
     barcode: str = Form(...),
@@ -42,3 +43,6 @@ async def analyze_sample(
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8001)

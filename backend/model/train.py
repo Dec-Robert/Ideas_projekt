@@ -7,7 +7,6 @@ from torch.utils.data import DataLoader, TensorDataset
 from sklearn.model_selection import train_test_split
 from torch import nn
 from model_def import CNNModel
-import torch_directml
 
 IMG_SIZE = 128
 neg_path = 'obrazy/Negative'
@@ -15,7 +14,15 @@ pos_path = 'obrazy/Positive'
 MODEL_PATH = 'cnn.pth'
 EPOCHS = 25
 
-device = torch_directml.device()
+device = torch.device("cpu")
+
+try:
+    import torch_directml
+    device = torch_directml.device()
+    _ = torch.tensor([1.0], device=device)
+except Exception:
+    print("[INFO] DirectML niedostępny – używam CPU.")
+
 print(f"Uzywane urzadzenie: {device}")
 
 def load_images_from_folder(folder, label):

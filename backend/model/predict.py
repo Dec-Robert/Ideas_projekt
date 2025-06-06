@@ -7,9 +7,17 @@ from torchcam.methods import GradCAM, GradCAMpp
 from torchcam.utils import overlay_mask
 from torchvision.transforms.functional import to_pil_image
 from model_def import CNNModel
-import torch_directml
 
-device = torch_directml.device()
+device = torch.device("cpu")
+
+try:
+    import torch_directml
+    device = torch_directml.device()
+    _ = torch.tensor([1.0], device=device)
+except Exception:
+    print("[INFO] DirectML niedostępny – używam CPU.")
+
+print(f"Uzywane urzadzenie: {device}")
 
 # Wczytanie modelu
 model = CNNModel().to(device)

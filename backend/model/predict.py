@@ -22,9 +22,7 @@ transform = transforms.Compose([
 ])
 
 
-def predict_image(image_base64: str, method: str = "gradcam"):
-    image_bytes = base64.b64decode(image_base64)
-
+def predict_image(image_bytes: bytes, method: str = "gradcam"):
     pil_image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
     input_tensor = transform(pil_image).unsqueeze(0).to(device)
 

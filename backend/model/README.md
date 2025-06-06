@@ -16,12 +16,14 @@ main.py - serwis - odbiera dane od akwizycji obrazów i wysyła post do bazy dan
 
 
 ## Biblioteki
-- torch
-- torch-directml (jeśli używany directml, można cpu - wtedy zmienić kod gdzie jest device)
-- torchvision
-- torchcam
-- matplotlib
-- numpy
+- torch>=2.0.0
+- torchvision>=0.15.0
+- torchcam>=0.3.2
+- torch-directml (jeśli cpu to można zmienić i to wywalić)
 - opencv-python
+- numpy
 - scikit-learn
+- pillow
 - fastapi
+- uvicorn
+- requests

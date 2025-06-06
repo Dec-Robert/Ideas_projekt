@@ -8,11 +8,11 @@ app = FastAPI()
 BAZA_URL = "http://baza:8000/samples/"
 
 
-@app.post("/analyze/")
+@app.post("/process/")
 async def analyze_sample(
     image: UploadFile = File(...),
-    barcode: int = Form(...),
-    algorithm: str = Form(...)
+    barcode: str = Form(...),
+    algorithm: int = Form(...)
 ):
     try:
         # Odczytanie zawartości pliku

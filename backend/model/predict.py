@@ -22,11 +22,11 @@ transform = transforms.Compose([
 ])
 
 
-def predict_image(image_bytes: bytes, method: str = "gradcam"):
+def predict_image(image_bytes: bytes, method: int = 1):
     pil_image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
     input_tensor = transform(pil_image).unsqueeze(0).to(device)
 
-    if method == "gradcam++":
+    if method == 2:
         cam_extractor = GradCAMpp(model, target_layer="conv3")
     else:
         cam_extractor = GradCAM(model, target_layer="conv3")

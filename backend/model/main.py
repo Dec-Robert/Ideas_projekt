@@ -24,12 +24,12 @@ async def analyze_sample(request: AnalyzeRequest):
 
         # Przygotowanie danych do przekazania dalej
         data_to_forward = {
-            "sample_id": request.sample_id,
-            "original_image": request.original_image_base64,
+            "sample_number": request.sample_id,
+            "cropped_image": request.original_image_base64,
             "algorithm": request.algorithm,
-            "prediction": result["prediction"],
+            "status": result["prediction"],
             "confidence": result["confidence"],
-            "cam_image": result["cam_image"]
+            "evaluated_image": result["cam_image"]
         }
 
         # Wysłanie do Bazy danych

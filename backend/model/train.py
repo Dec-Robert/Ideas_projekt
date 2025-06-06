@@ -127,7 +127,7 @@ print(f"Model zapisany do: {MODEL_PATH}")
 
 # ewaluacja na zbiorze testowym
 test_loader = DataLoader(TensorDataset(X_test, y_test), batch_size=32)
-model.load_state_dict(torch.load(MODEL_PATH))
+model.load_state_dict(torch.load(MODEL_PATH, weights_only=False))
 model.eval()
 
 test_correct, test_total = 0, 0

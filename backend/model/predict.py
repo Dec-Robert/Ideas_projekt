@@ -21,7 +21,7 @@ print(f"Uzywane urzadzenie: {device}")
 
 # Wczytanie modelu
 model = CNNModel().to(device)
-model.load_state_dict(torch.load("cnn.pth", map_location=device))
+model.load_state_dict(torch.load("cnn.pth", map_location=device, weights_only=False))
 model.eval()
 
 transform = transforms.Compose([

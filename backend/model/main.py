@@ -1,7 +1,6 @@
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form
 from fastapi.responses import JSONResponse
 from predict import predict_image
-import base64
 import requests
 
 app = FastAPI()

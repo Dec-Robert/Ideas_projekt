@@ -1,0 +1,11 @@
+torch>=2.0.0
+torchvision>=0.15.0
+torchcam>=0.3.2
+torch-directml
+opencv-python
+numpy
+scikit-learn
+pillow
+fastapi
+uvicorn
+requests

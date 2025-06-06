@@ -22,7 +22,7 @@ async def analyze_sample(request: AnalyzeRequest):
         # Przetwarzanie obrazu
         result = predict_image(request.original_image_base64, method=request.algorithm)
 
-        # Przygotowanie danych do przekazania dalej (bez sample_number, bo jest w URL)
+        # Przygotowanie danych do przekazania dalej
         data_to_forward = {
             "algorithm": request.algorithm,
             "status": result["prediction"],

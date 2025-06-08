@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+  mongo:
+    image: mongo:6
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  archiwum-api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/samplesdb
+    depends_on:
+      - mongo
+
+volumes:
+  mongo_data:

@@ -18,12 +18,14 @@ device = torch.device("cpu")
 
 try:
     import torch_directml
+
     device = torch_directml.device()
     _ = torch.tensor([1.0], device=device)
 except Exception:
-    print("[INFO] DirectML niedostępny – używam CPU.")
+    print("DirectML niedostepny – uzywany CPU")
 
 print(f"Uzywane urzadzenie: {device}")
+
 
 def load_images_from_folder(folder, label):
     images, labels = [], []
@@ -105,7 +107,8 @@ for epoch in range(EPOCHS):
     val_loss /= len(val_loader)
     val_acc = val_correct / val_total * 100
 
-    print(f"Epoch {epoch + 1}/{EPOCHS} - Loss: {avg_loss:.4f} - Train Acc: {train_acc:.2f}% - Val Loss: {val_loss:.4f} - Val Acc: {val_acc:.2f}%")
+    print(
+        f"Epoch {epoch + 1}/{EPOCHS} - Loss: {avg_loss:.4f} - Train Acc: {train_acc:.2f}% - Val Loss: {val_loss:.4f} - Val Acc: {val_acc:.2f}%")
 
     # wczesne zatrzymanie
     if best_val_loss - val_loss > min_delta:

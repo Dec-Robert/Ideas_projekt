@@ -15,7 +15,7 @@ try:
     device = torch_directml.device()
     _ = torch.tensor([1.0], device=device)
 except Exception:
-    print("[INFO] DirectML niedostępny – używam CPU.")
+    print("DirectML niedostepny – uzywany CPU")
 
 print(f"Uzywane urzadzenie: {device}")
 
@@ -30,6 +30,7 @@ transform = transforms.Compose([
 ])
 
 
+# funkcja do przetwarzania obrazu
 def predict_image(image_bytes: bytes, method: int = 1):
     pil_image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
     input_tensor = transform(pil_image).unsqueeze(0).to(device)

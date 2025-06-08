@@ -11,12 +11,12 @@ BAZA_URL = "http://baza:8000/samples/"
 
 @app.post("/process")
 async def analyze_sample(
-    image: UploadFile = File(...),
-    barcode: str = Form(...),
-    algorithm: int = Form(...)
+        image: UploadFile = File(...),
+        barcode: str = Form(...),
+        algorithm: int = Form(...)
 ):
     try:
-        # Odczytanie zawartości pliku
+        # Odczytanie zawartosci pliku
         image_bytes = await image.read()
 
         # Przetwarzanie obrazu
@@ -30,19 +30,19 @@ async def analyze_sample(
             "evaluated_image": result["cam_image"]
         }
 
-        # Budowa adresu PUT z numerem próbki
         url = f"{BAZA_URL}{barcode}"
 
-        # Wysłanie danych do bazy
+        # Wyslanie danych do bazy
         forward_response = requests.put(url, json=data_to_forward)
         if not forward_response.ok:
-            raise HTTPException(status_code=502, detail="Błąd wysyłki do bazy danych")
+            raise HTTPException(status_code=502, detail="Blad wysylki do bazy danych")
 
-        # Zwrócenie odpowiedzi do akwizycji
+        # Zwrocenie odpowiedzi do akwizycji
         return JSONResponse(content={"status": "success", "data": data_to_forward})
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8001)

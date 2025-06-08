@@ -19,7 +19,7 @@ Zmienne środowiskowe:
 
     MONGODB_URI: domyślnie ustawione w docker-compose na mongodb://mongo:27017/samplesdb (wymagane połączenie z MongoDB)
 
-🔌 Endpointy API
+🔌 Endpointy API  
 POST /samples
 
 Tworzy nową próbkę w archiwum.
@@ -36,7 +36,7 @@ Odpowiedź:
   "message": "Sample created",
   "sample_number": "12345678"
 }
-
+  
 PUT /samples/{sample_number}
 
 Aktualizuje rekord próbki po predykcji.

@@ -3,10 +3,11 @@ from fastapi.responses import JSONResponse
 from predict import predict_image
 import requests
 import uvicorn
+import os
 
 app = FastAPI()
 
-BAZA_URL = "http://baza:8000/samples/"
+BAZA_URL = os.getenv("BAZA_URL", "http://localhost:8000/samples/")
 
 
 @app.post("/process")

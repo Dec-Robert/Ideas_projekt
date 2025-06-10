@@ -14,6 +14,7 @@ cnn.pth - Zapisane wagi modelu, wymaga klasy CNNModel z model_def.py do załadow
 
 main.py - serwis - odbiera dane od akwizycji obrazów i wysyła post do bazy danych
 
+Dockerfile - dodany może się przyda
 
 ## Biblioteki
 - torch>=2.0.0
@@ -27,3 +28,4 @@ main.py - serwis - odbiera dane od akwizycji obrazów i wysyła post do bazy dan
 - fastapi
 - uvicorn
 - requests
+- python-multipart

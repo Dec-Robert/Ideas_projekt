@@ -1,8 +1,56 @@
 <template>
   <div class="hello">
-    <button @click="showDialog = true" class="add-btn">Dodaj obraz do oceny</button>
+    <button @click="openDialog" class="add-btn">Dodaj obraz do oceny</button>
+    <!-- Przycisk odświeżania -->
+    <button @click="fetchSamples" class="refresh-btn">Odśwież listę próbek</button>
+    <button @click="sendReport" class="report-btn" :disabled="selectedSamples.length === 0">Zrób raport</button>
+    <!-- Lista próbek -->
+    <table class="samples-table">
+      <thead>
+        <tr>
+          <th><input type="checkbox" @change="toggleAll($event)" :checked="allSelected" /></th>
+          <th>Numer</th>
+          <th>Data dodania</th>
+          <th>Status</th>
+          <th>Obraz</th>
+          <th>Algorytm</th>
+          <th>Obraz oceniony</th>
+          <th>Pewność</th>
+          <th>Data oceny</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="sample in samples" :key="sample.number">
+          <td><input type="checkbox" :value="sample.number" v-model="selectedSamples" /></td>
+          <td>
+            <a href="#" @click.prevent="showImage(sample)">{{ sample.number }}</a>
+          </td>
+          <td>{{ sample.date }}</td>
+          <td>{{ sample.status }}</td>
+          <td>
+            <span class="icon" @click="showImage(sample)">🔍</span>
+          </td>
+          <td>{{ sample.algorithm }}</td>
+          <td>
+            <span v-if="sample.evaluated_image">✔️</span>
+          </td>
+          <td>{{ sample.confidence }}</td>
+          <td>{{ sample.date_predicted }}</td>
+        </tr>
+      </tbody>
+    </table>
 
-    <!-- Dialog dodawania -->
+    <!-- Podgląd obrazu -->
+    <div v-if="previewSample" class="dialog-overlay" @click.self="previewSample = null">
+      <div class="dialog">
+        <h3>Podgląd obrazu próbki {{ previewSample.number }}</h3>
+        <img :src="previewSample.img" alt="Sample image" style="max-width:300px;max-height:200px;" />
+        <div class="dialog-actions">
+          <button @click="previewSample = null">Zamknij</button>
+        </div>
+      </div>
+    </div>
+
     <div v-if="showDialog" class="dialog-overlay">
       <div class="dialog">
         <h3>Dodaj obraz do oceny</h3>
@@ -16,42 +64,7 @@
         </div>
         <div class="dialog-actions">
           <button @click="addSample" :disabled="!selectedFile">Dodaj</button>
-          <button @click="showDialog = false">Anuluj</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Lista próbek -->
-    <table class="samples-table">
-      <thead>
-        <tr>
-          <th>Numer</th>
-          <th>Data dodania</th>
-          <th>Status</th>
-          <th>Obraz</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="sample in samples" :key="sample.number">
-          <td>
-            <a href="#" @click.prevent="showImage(sample)">{{ sample.number }}</a>
-          </td>
-          <td>{{ sample.date }}</td>
-          <td>{{ sample.status }}</td>
-          <td>
-            <span class="icon" @click="showImage(sample)">🔍</span>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-
-    <!-- Podgląd obrazu -->
-    <div v-if="previewSample" class="dialog-overlay" @click.self="previewSample = null">
-      <div class="dialog">
-        <h3>Podgląd obrazu próbki {{ previewSample.number }}</h3>
-        <img :src="previewSample.img" alt="Sample image" style="max-width:300px;max-height:200px;" />
-        <div class="dialog-actions">
-          <button @click="previewSample = null">Zamknij</button>
+          <button @click="closeDialog">Anuluj</button>
         </div>
       </div>
     </div>
@@ -72,63 +85,143 @@ export default {
     return {
       showDialog: false,
       selectedFile: null,
+      selectedFileHash: null,
       selectedAlgorithm: 'Algorytm_1',
       previewSample: null,
-      samples: [
-        {
-          number: '84758',
-          date: '19.05.2025 13:10',
-          status: getStatusText('positive'),
-          img: '',
-        },
-        {
-          number: '12384',
-          date: '19.05.2025 13:10',
-          status: getStatusText('negative'),
-          img: '',
-        },
-        {
-          number: '71889',
-          date: '19.05.2025 13:10',
-          status: getStatusText('pending'),
-          img: '', 
-        },
-      ],
+      samples: [],
+      selectedSamples: [],
     };
   },
+  computed: {
+    allSelected() {
+      return this.samples.length > 0 && this.selectedSamples.length === this.samples.length;
+    }
+  },
+  async mounted() {
+    await this.fetchSamples();
+  },
   methods: {
+    openDialog() {
+      this.showDialog = true;
+      this.selectedFile = null;
+      this.selectedFileHash = null;
+    },
+    closeDialog() {
+      this.showDialog = false;
+      this.selectedFile = null;
+      this.selectedFileHash = null;
+    },
+    async fetchSamples() {
+      try {
+        const res = await fetch('http://localhost:8000/samples');
+        if (!res.ok) throw new Error('Błąd pobierania próbek');
+        const data = await res.json();
+        // Mapowanie wszystkich pól z API na frontend
+        this.samples = data.map(s => ({
+          number: s.sample_number,
+          date: s.date_added ? new Date(s.date_added).toLocaleString('pl-PL') : '',
+          status: s.status === 'in_progress' ? 'W trakcie oceny' : (s.status === 'positive' ? 'Ocena: Pozytywna' : (s.status === 'negative' ? 'Ocena: Negatywna' : s.status)),
+          img: s.cropped_image || '',
+          algorithm: s.algorithm ?? '',
+          evaluated_image: s.evaluated_image ?? '',
+          confidence: s.confidence ?? '',
+          date_predicted: s.date_predicted ? new Date(s.date_predicted).toLocaleString('pl-PL') : '',
+        }));
+      } catch (e) {
+        this.samples = [];
+      }
+    },
     onFileChange(e) {
       const file = e.target.files[0];
       if (file) {
         this.selectedFile = file;
+        // Hashowanie pliku po wczytaniu
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+          const arrayBuffer = event.target.result;
+          // Hash SHA-256
+          const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
+          const hashArray = Array.from(new Uint8Array(hashBuffer));
+          const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+          this.selectedFileHash = hashHex;
+        };
+        reader.readAsArrayBuffer(file);
       }
     },
-    addSample() {
-      // Symulacja wyciągania numeru próbki z obrazu
-      const number = Math.floor(Math.random() * 90000 + 10000).toString();
-      const date = new Date().toLocaleString('pl-PL', {
-        day: '2-digit', month: '2-digit', year: 'numeric',
-        hour: '2-digit', minute: '2-digit'
-      });
-      const status = 'W trakcie oceny';
-
-      // Odczyt obrazu jako dataURL
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        this.samples.unshift({
-          number,
-          date,
-          status,
-          img: e.target.result,
-        });
-        this.showDialog = false;
-        this.selectedFile = null;
+    async addSample() {
+      if (!this.selectedFile) return;
+      // Poczekaj na wyliczenie hasha przed wysyłką
+      const waitForHash = async () => {
+        if (!this.selectedFileHash) {
+          await new Promise(resolve => setTimeout(resolve, 50));
+          return waitForHash();
+        }
       };
-      reader.readAsDataURL(this.selectedFile);
+      await waitForHash();
+      const file = this.selectedFile;
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('algorithm', this.selectedAlgorithm === 'Algorytm_1' ? 1 : 2);
+      formData.append('hash', this.selectedFileHash || '');
+      try {
+        await fetch('http://localhost:8001/upload', { // osobny backend do zdjęć
+          method: 'POST',
+          body: formData
+        });
+      } catch (err) {}
+      this.showDialog = false;
+      this.selectedFile = null;
+      this.selectedFileHash = null;
     },
     showImage(sample) {
-      this.previewSample = sample;
+      // Jeśli img to base64, ustaw src z odpowiednim prefixem
+      if (sample.img && !sample.img.startsWith('data:image')) {
+        this.previewSample = {
+          ...sample,
+          img: 'data:image/png;base64,' + sample.img
+        };
+      } else {
+        this.previewSample = sample;
+      }
+    },
+    toggleAll(e) {
+      if (e.target.checked) {
+        this.selectedSamples = this.samples.map(s => s.number);
+      } else {
+        this.selectedSamples = [];
+      }
+    },
+    async sendReport() {
+  try {
+    const response = await fetch('http://localhost:8001/generate-report', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ sample_ids: this.selectedSamples })
+    });
+
+    if (!response.ok) {
+      throw new Error('Błąd podczas generowania raportu');
     }
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+
+    const disposition = response.headers.get('Content-Disposition');
+    const filenameMatch = disposition && disposition.match(/filename="(.+)"/);
+    link.download = filenameMatch ? filenameMatch[1] : 'raport.docx';
+
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error('Wystąpił błąd podczas pobierania raportu:', error);
+  }
+},
   }
 }
 </script>
@@ -150,6 +243,25 @@ export default {
   border: none;
   border-radius: 4px;
   cursor: pointer;
+}
+.refresh-btn {
+  margin-bottom: 10px;
+  padding: 6px 16px;
+  background: #1976d2;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.report-btn {
+  margin-bottom: 10px;
+  padding: 6px 16px;
+  background: #e67e22;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-left: 10px;
 }
 .samples-table {
   border-collapse: collapse;

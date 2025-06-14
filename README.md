@@ -3,9 +3,9 @@ Moduł odpowiada za generowanie raportu DOCX na podstawie analizowanych próbek.
 Endpointy  
 POST /generate-report
 
-    Opis: Generuje plik .docx z wybranymi próbkami.
+Opis: Generuje plik .docx z wybranymi próbkami.
 
-    Body (JSON):
+Body (JSON):
 
 {
   "sample_ids": ["<id_1>", "<id_2>", "..."]
@@ -39,4 +39,4 @@ raport_api.py – główny plik aplikacji
 
 requirements.txt – zależności Pythona
 
-szablon.docx – szablon z gotową tabelą do uzupełnienia
+szablon.docx – szablon (czysty docx)

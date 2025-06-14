@@ -1,2 +1,2 @@
 # Ideas_projekt
-To część GUI, dodałem tylko source bo tylko to trzeba, na razie jest stronka która działa ale nic nie robi w sumie, tylko udaje że robi
+GUI projektu. Wszystko działa, gotowe do konteneryzacji. Nie przesłałem folderu node modules bo jest strasznie duży, a to po prostu rzeczy co się instalują z vue. Kod jest, wszystko powinno działać. Gotowe do konteneryzacji

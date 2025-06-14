@@ -18,7 +18,9 @@ import asyncio
 app = FastAPI()
 
 
-TEAM2_SERVER_URL = "http://0.0.0.0:8001/process" 
+TEAM2_SERVER_URL = "http://0.0.0.0:8001/process"
+SAMPLES_SERVER_URL = "http://0.0.0.0:8002/samples"
+
 
 class BarcodeImageProcessor:
     def __init__(self, output_folder="processed_images"):
@@ -205,6 +207,45 @@ async def send_to_team2(top_image, barcode, algorithm):
             "message": f"Błąd podczas wysyłania do zespołu 2: {str(e)}"
         }
 
+async def send_to_samples(top_image, sample_number):
+    try:
+        import base64
+        
+        _, buffer = cv2.imencode('.jpg', top_image)
+        image_bytes = buffer.tobytes()
+        
+        image_base64 = base64.b64encode(image_bytes).decode('utf-8')
+        
+        json_data = {
+            'cropped_image': image_base64,
+            'sample_number': str(sample_number) if sample_number else "None"
+        }
+        
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                SAMPLES_SERVER_URL,
+                json=json_data,
+                timeout=30.0
+            )
+            
+            if response.status_code == 200:
+                return {
+                    "status": "success",
+                    "samples_response": response.json()
+                }
+            else:
+                return {
+                    "status": "error",
+                    "message": f"Błąd odpowiedzi z serwera samples: {response.status_code}",
+                    "details": response.text
+                }
+                
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": f"Błąd podczas wysyłania do samples: {str(e)}"
+        }
+
 processor = BarcodeImageProcessor()
 
 @app.post('/upload')
@@ -234,7 +275,14 @@ async def upload(file: UploadFile = File(...), algorithm: int = Form(...), hash:
             result.get("barcode"),
             algorithm
         )
-        
+
+        samples_result = await send_to_samples(
+            result["top_image"],
+            result.get("barcode") 
+        )
+
+        result["samples_forwarding"] = samples_result
+        print(samples_result)
         result["team2_forwarding"] = team2_result
     
     return JSONResponse(content={

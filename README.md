@@ -15,7 +15,7 @@ Działanie:
 
     Pobiera dane z Archiwum API (/samples/batch)
 
-    Wczytuje plik szablonu template.docx (w katalogu modułu)
+    Wczytuje plik szablonu szablon.docx (w katalogu modułu)
 
     Wypełnia tabelę w szablonie danymi:
 

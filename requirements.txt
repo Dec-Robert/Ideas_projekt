@@ -3,3 +3,8 @@ uvicorn
 requests
 python-docx
 pydantic
+fastapi
+uvicorn[standard]
+httpx
+opencv-python-headless
+numpy

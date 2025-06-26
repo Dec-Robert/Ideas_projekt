@@ -32,7 +32,7 @@
           </td>
           <td>{{ sample.algorithm }}</td>
           <td>
-            <span v-if="sample.evaluated_image">✔️</span>
+            <span v-if="sample.evaluated_image" class="icon" @click="showEvaluatedImage(sample)">🔍</span>
           </td>
           <td>{{ sample.confidence }}</td>
           <td>{{ sample.date_predicted }}</td>
@@ -47,6 +47,17 @@
         <img :src="previewSample.img" alt="Sample image" style="max-width:300px;max-height:200px;" />
         <div class="dialog-actions">
           <button @click="previewSample = null">Zamknij</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Podgląd obrazu ocenionego -->
+    <div v-if="previewEvaluatedSample" class="dialog-overlay" @click.self="previewEvaluatedSample = null">
+      <div class="dialog">
+        <h3>Podgląd obrazu ocenionego próbki {{ previewEvaluatedSample.number }}</h3>
+        <img :src="previewEvaluatedSample.evaluated_image" alt="Evaluated image" style="max-width:300px;max-height:200px;" />
+        <div class="dialog-actions">
+          <button @click="previewEvaluatedSample = null">Zamknij</button>
         </div>
       </div>
     </div>
@@ -88,6 +99,7 @@ export default {
       selectedFileHash: null,
       selectedAlgorithm: 'Algorytm_1',
       previewSample: null,
+      previewEvaluatedSample: null,
       samples: [],
       selectedSamples: [],
     };
@@ -113,7 +125,8 @@ export default {
     },
     async fetchSamples() {
       try {
-        const res = await fetch('http://localhost:8000/samples');
+        // ZMIENIONO PORT: z 8000 na 8082 (zgodnie z docker ps dla usługi archiwum)
+        const res = await fetch('http://localhost:8082/samples');
         if (!res.ok) throw new Error('Błąd pobierania próbek');
         const data = await res.json();
         // Mapowanie wszystkich pól z API na frontend
@@ -164,7 +177,8 @@ export default {
       formData.append('algorithm', this.selectedAlgorithm === 'Algorytm_1' ? 1 : 2);
       formData.append('hash', this.selectedFileHash || '');
       try {
-        await fetch('http://localhost:8001/upload', { // osobny backend do zdjęć
+        // ZMIENIONO PORT: z 8001 na 8081 (zgodnie z docker ps dla usługi raport)
+        await fetch('http://localhost:8081/upload', {
           method: 'POST',
           body: formData
         });
@@ -184,6 +198,17 @@ export default {
         this.previewSample = sample;
       }
     },
+    showEvaluatedImage(sample) {
+      // Jeśli evaluated_image to base64, ustaw src z odpowiednim prefixem
+      if (sample.evaluated_image && !sample.evaluated_image.startsWith('data:image')) {
+        this.previewEvaluatedSample = {
+          ...sample,
+          evaluated_image: 'data:image/png;base64,' + sample.evaluated_image
+        };
+      } else {
+        this.previewEvaluatedSample = sample;
+      }
+    },
     toggleAll(e) {
       if (e.target.checked) {
         this.selectedSamples = this.samples.map(s => s.number);
@@ -193,7 +218,8 @@ export default {
     },
     async sendReport() {
   try {
-    const response = await fetch('http://localhost:8001/generate-report', {
+    // ZMIENIONO PORT: z 8001 na 8081 (zgodnie z docker ps dla usługi raport)
+    const response = await fetch('http://localhost:8081/generate-report', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

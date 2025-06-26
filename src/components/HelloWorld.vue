@@ -177,8 +177,7 @@ export default {
       formData.append('algorithm', this.selectedAlgorithm === 'Algorytm_1' ? 1 : 2);
       formData.append('hash', this.selectedFileHash || '');
       try {
-        // ZMIENIONO PORT: z 8001 na 8081 (zgodnie z docker ps dla usługi raport)
-        await fetch('http://localhost:8081/upload', {
+        await fetch('http://localhost:8084/upload', {
           method: 'POST',
           body: formData
         });
